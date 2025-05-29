@@ -34,27 +34,28 @@ Algorithm:
     - Add the string to a dict, with this number as the value
     - Return the sorted list (reverse)
 
-    - Adjacent consonants:
-        - Take a string and return the highest number of adjacent
+    - Adjacent consonants sub problem(PEDAC)
+    P    - Take a string and return the highest number of adjacent
         consonants in that string
         - Input: string
         - Output: integer
-        - Tests:
+    E    - Tests:
             - 'dddaa' --> 3
             - 'dddd' --> 4
             - 'ccaa' --> 2
             - 'aaaa' --> 0
-        - Algorithm:
+    A    - Algorithm:
             - Remove spaces
             - Set a consonant count to 0
-            - Set a temp consonant string to empty string
+            - Set a temp_consonant string to empty string
             - Iterate over each letter:
-                - If a consonant, add to temp consonant string
+                - If a consonant, add to temp_consonant string
                 - If a vowel:   
-                    - If len of temp consonant string > count:
-                        - If count > 1:
-                            Set count to the length
+                    - If len of temp consonant string > count and > 1:
+                       - Set count to the length
                     - Reset temp consonant string to empty
+            - If len of temp consonant string > count and > 1:
+                - Set count to the length
             - Return the count
 
 '''
@@ -66,12 +67,15 @@ def max_adjacent_consonants(element):
     for char in element.replace(' ', ''):
         if char not in VOWELS: # If it's a consonant
             temp_consonants_string += char
-        elif char in VOWELS: # If it's a vowel
+        else:
             if (len(temp_consonants_string) > consonant_count and
                 len(temp_consonants_string) > 1):
                 consonant_count = len(temp_consonants_string)
             temp_consonants_string = ''
-    return consonant_count if consonant_count else len(temp_consonants_string)
+    if (len(temp_consonants_string) > consonant_count and
+        len(temp_consonants_string) > 1):
+        consonant_count = len(temp_consonants_string)
+    return consonant_count
 
 def sort_by_consonant_count(list_of_words):
     list_of_words.sort(key=max_adjacent_consonants, reverse=True)
@@ -90,7 +94,7 @@ my_list = ['bar', 'car', 'far', 'jar']
 print(sort_by_consonant_count(my_list))
 # ['bar', 'car', 'far', 'jar']
 
-my_list = ['day', 'week', 'month', 'year']
+my_list = ['day', 'week', 'mmonth', 'year']
 print(sort_by_consonant_count(my_list))
 # ['month', 'day', 'week', 'year']
 
