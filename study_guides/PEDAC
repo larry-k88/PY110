@@ -7,8 +7,10 @@ Problem:
     - Output -
      
     - Explicit requirements:
-        -
+        - Rules
     - Implicit requirements:
+        - 
+    - Questions
         - 
 
 Examples/Test Cases:
