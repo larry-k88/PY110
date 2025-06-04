@@ -48,13 +48,12 @@ def word_sizes(text):
 
     for word in text.split():
         if not word.isalpha():
-            alpha_word = [char for char in word if char.isalpha()]
-            word_length = len(alpha_word)
-
+            word_length = sum(1 for char in word if char.isalpha())
         else:
             word_length = len(word)
 
-        output_dict[word_length] = output_dict.get(word_length, 0) + 1
+        if word_length > 0: # covers words entirely of non-alphanumerics  
+            output_dict[word_length] = output_dict.get(word_length, 0) + 1
 
     return output_dict
 
