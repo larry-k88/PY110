@@ -33,3 +33,6 @@ list_of_vowels = [char for lst in dict1.values()
                        for char in word if char in VOWELS]
 
 print(list_of_vowels == ['e', 'u', 'i', 'o', 'o', 'u', 'e', 'o', 'e', 'e', 'a', 'o'])
+
+# Extra Challenge
+
