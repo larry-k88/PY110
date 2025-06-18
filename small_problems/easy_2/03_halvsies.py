@@ -8,15 +8,19 @@
 '''
 Problem:
 
-    - {Rewrite in own words}
+    - Take a list and half it (if odd, make first list bigger) - add the 
+    half lists to a new list (made of 2 lists)
 
-    - Input - 
-    - Output -
+    - Input - one list
+    - Output - one list containing 2 lists
      
     - Explicit requirements:
-        - Rules
+        - If number of elements is odd, add the middle element to list1
+        - The output is a new list which contains only 2 lists.
     - Implicit requirements:
-        - 
+        - The lists will be of equal length if even number of elements
+        - The first list will be longer by 1 if odd number of elements
+        - Empty list - return two empty lists within
     - Questions
         - 
 
@@ -28,16 +32,22 @@ Examples/Test Cases:
     - print(halvsies([]) == [[], []])
 
 Data Structure:
-    - What best suits the problem (list, dictionary etc.)       
+    - len()
+   
 
 Algorithm:  
-
-    - Pseudocode
-    - Formal pseudocode
+    - Determine midpoint of input list - account for odd AND even
+    - SET slice from start to midpoint
+    - SET slice from midpoint to end
+    - Return list([slice1, slice2])
 
 '''
 def halvsies(lst):
-    pass
+    mid_point = (len(lst) + 1) // 2
+    lst1 = lst[:mid_point]
+    lst2 = lst[mid_point:]
+
+    return [lst1, lst2]
 
 # All of these examples should print True
 print(halvsies([1, 2, 3, 4]) == [[1, 2], [3, 4]])
