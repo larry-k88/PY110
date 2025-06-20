@@ -1,27 +1,34 @@
 '''
 Problem:
 
-    - {Rewrite in own words}
+  - {Rewrite in own words}
 
-    - Input - 
-    - Output -
      
-    - Explicit requirements:
-        - Rules
-    - Implicit requirements:
-        - 
-    - Questions
-        - 
+  - Explicit requirements:
+      - Rules
+  - Implicit requirements:
+      - 
+  - Questions
+      - 
 
 Examples/Test Cases:
-    - Edge cases (empty inputs, zero, exception handling)
+  - Edge cases (empty inputs, zero, exception handling)
 
 Data Structure:
-    - What best suits the problem (list, dictionary etc.)       
+  - Input: 
+  - Output:
+    
+  - Intermediate: 
+
+High-level strategies:
+  - 
 
 Algorithm:  
 
-    - Pseudocode
-    - Formal pseudocode
+  # Language agnostic for a non-programmer
+  # Helper functions
+  # Descriptive variable names
+  # Run test cases through algo
+  - 
 
 '''
