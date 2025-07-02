@@ -5,6 +5,11 @@ INITIAL_MARKER = ' '
 PLAYER_MARKER = 'X'
 COMPUTER_MARKER = 'O'
 WINING_SCORE = 3
+WINNING_LINES = [
+        [1, 2, 3], [4, 5, 6], [7, 8, 9],    # Rows
+        [1, 4, 7], [2, 5, 8], [3, 6, 9],    # Columns
+        [1, 5, 9], [3, 5, 7]                # Diagonals
+    ]
 
 def display_board(board):
     os.system('clear')
@@ -49,6 +54,15 @@ def empty_squares(board):
     return [key for key, value in board.items()
                      if value == INITIAL_MARKER]
 
+def find_at_risk_sq(line, board):
+    markers_in_line = [board[square] for square in line]
+    print(markers_in_line)
+    if markers_in_line.count(PLAYER_MARKER) == 2:
+        for square in line:
+            if board[square] == INITIAL_MARKER:
+                return square
+    return None
+
 def player_choose_square(board):
     while True:
         valid_choices = [str(num) for num in empty_squares(board)]
@@ -64,7 +78,16 @@ def player_choose_square(board):
 def computer_choose_square(board):
     if len(empty_squares(board)) == 0:
         return
-    square = random.choice(empty_squares(board))
+    
+    square = None
+    for line in WINNING_LINES:
+        square = find_at_risk_sq(line, board)
+        if square:
+            break
+
+    if not square:
+        square = random.choice(empty_squares(board))
+
     board[square] = COMPUTER_MARKER
 
 def board_full(board):
@@ -74,12 +97,7 @@ def someone_won(board):
     return bool(detect_winner(board))
 
 def detect_winner(board):
-    winning_lines = [
-        [1, 2, 3], [4, 5, 6], [7, 8, 9],
-        [1, 4, 7], [2, 5, 8], [3, 6, 9],
-        [1, 5, 9], [3, 5, 7]
-    ]
-    for line in winning_lines:
+    for line in WINNING_LINES:
         sq1, sq2, sq3 = line
         if (board[sq1] == PLAYER_MARKER
             and board[sq2] == PLAYER_MARKER
