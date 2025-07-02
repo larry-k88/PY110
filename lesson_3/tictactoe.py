@@ -2,14 +2,15 @@ import os
 import random
 
 INITIAL_MARKER = ' '
-HUMAN_MARKER = 'X'
+PLAYER_MARKER = 'X'
 COMPUTER_MARKER = 'O'
-WINING_SCORE = 5
+WINING_SCORE = 3
 
 def display_board(board):
     os.system('clear')
 
-    prompt(f"You are {HUMAN_MARKER}. Computer is {COMPUTER_MARKER}.")
+    prompt(f"You are {PLAYER_MARKER}. Computer is {COMPUTER_MARKER}.")
+    prompt(f'First to win {WINING_SCORE} rounds will win the match!')
     print('')
     print('     |     |     ')
     print(f'  {board[1]}  |  {board[2]}  |  {board[3]}  ')
@@ -58,7 +59,7 @@ def player_choose_square(board):
 
         prompt('Sorry, that\'s not a valid choice')
 
-    board[int(square)] = HUMAN_MARKER
+    board[int(square)] = PLAYER_MARKER
 
 def computer_choose_square(board):
     if len(empty_squares(board)) == 0:
@@ -80,40 +81,69 @@ def detect_winner(board):
     ]
     for line in winning_lines:
         sq1, sq2, sq3 = line
-        if (board[sq1] == HUMAN_MARKER
-            and board[sq2] == HUMAN_MARKER
-            and board[sq3] == HUMAN_MARKER):
+        if (board[sq1] == PLAYER_MARKER
+            and board[sq2] == PLAYER_MARKER
+            and board[sq3] == PLAYER_MARKER):
             return 'Player'
-        elif (board[sq1] == COMPUTER_MARKER
+        if (board[sq1] == COMPUTER_MARKER
             and board[sq2] == COMPUTER_MARKER
             and board[sq3] == COMPUTER_MARKER):
             return 'Computer'
 
     return None
 
+def display_scores(player, computer):
+    print(f'Scores: \nPlayer: {player} \nComputer: {computer}')
+
+def display_winner(player, computer, board):
+    if player > computer:
+        prompt(f'{detect_winner(board)} won the match')
+    else:
+        prompt(f'{detect_winner(board)} won the match')
+
 def play_tic_tac_toe():
     while True:
-        board = initialise_board()
+        player_score = 0
+        computer_score = 0
+        while WINING_SCORE not in (player_score, computer_score):
+            board = initialise_board()
 
-        while True:
+            while True:
+                display_board(board)
+
+                player_choose_square(board)
+                if someone_won(board) or board_full(board):
+                    break
+
+                computer_choose_square(board)
+                if someone_won(board) or board_full(board):
+                    break
+
             display_board(board)
 
-            player_choose_square(board)
-            if someone_won(board) or board_full(board):
-                break
-            
-            computer_choose_square(board)
-            if someone_won(board) or board_full(board):
+            if someone_won(board):
+                prompt(f'{detect_winner(board)} won this round!')
+
+                if detect_winner(board) == 'Player':
+                    player_score += 1
+                if detect_winner(board) == 'Computer':
+                    computer_score += 1
+
+            else:
+                prompt('It\'s a tie!')
+
+            display_scores(player_score, computer_score)
+
+            if WINING_SCORE in (player_score, computer_score):
+                display_winner(player_score, computer_score, board)
                 break
 
-        display_board(board)
+            prompt('Do you want to play the next round? (y or n)')
+            answer = input().lower()
+            if answer != 'y':
+                break
 
-        if someone_won(board):
-            prompt(f'{detect_winner(board)} won!')
-        else:
-            prompt('It\'s a tie!')
-        
-        prompt('Do you want to play again? (y or n)')
+        prompt('Do you want to start a new match? (y or n)')
         answer = input().lower()
         if answer != 'y':
             break
