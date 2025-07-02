@@ -54,10 +54,10 @@ def empty_squares(board):
     return [key for key, value in board.items()
                      if value == INITIAL_MARKER]
 
-def find_at_risk_sq(line, board):
+def find_at_risk_sq(line, board, marker):
     markers_in_line = [board[square] for square in line]
-    print(markers_in_line)
-    if markers_in_line.count(PLAYER_MARKER) == 2:
+
+    if markers_in_line.count(marker) == 2:
         for square in line:
             if board[square] == INITIAL_MARKER:
                 return square
@@ -80,12 +80,19 @@ def computer_choose_square(board):
         return
     
     square = None
-    for line in WINNING_LINES:
-        square = find_at_risk_sq(line, board)
+
+    for line in WINNING_LINES: # defence
+        square = find_at_risk_sq(line, board, PLAYER_MARKER)
         if square:
             break
 
     if not square:
+        for line in WINNING_LINES: # offence
+            square = find_at_risk_sq(line, board, COMPUTER_MARKER)
+            if square:
+                break
+
+    if not square: # no defence or offence
         square = random.choice(empty_squares(board))
 
     board[square] = COMPUTER_MARKER
