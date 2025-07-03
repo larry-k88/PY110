@@ -11,6 +11,7 @@ WINNING_LINES = [
         [1, 4, 7], [2, 5, 8], [3, 6, 9],    # Columns
         [1, 5, 9], [3, 5, 7]                # Diagonals
     ]
+START_FIRST = 'player'
 
 def display_board(board):
     os.system('clear')
@@ -50,6 +51,16 @@ def initialise_board():
 
 def prompt(message):
     print(f'==> {message}')
+
+def starting_player(who_starts):
+    if who_starts in ('player', 'computer'):
+        return who_starts
+    
+    while True:
+        print('Who goes first? (player or computer)')
+        starting_player = input().lower()
+        if starting_player in ('player', 'computer'):
+            return starting_player
 
 def empty_squares(board):
     return [key for key, value in board.items()
