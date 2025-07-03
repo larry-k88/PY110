@@ -78,19 +78,22 @@ def player_choose_square(board):
 def computer_choose_square(board):
     if len(empty_squares(board)) == 0:
         return
-    
+
     square = None
 
-    for line in WINNING_LINES: # defence
-        square = find_at_risk_sq(line, board, PLAYER_MARKER)
+    for line in WINNING_LINES: # offence
+        square = find_at_risk_sq(line, board, COMPUTER_MARKER)
         if square:
             break
 
     if not square:
-        for line in WINNING_LINES: # offence
-            square = find_at_risk_sq(line, board, COMPUTER_MARKER)
+        for line in WINNING_LINES: # defence
+            square = find_at_risk_sq(line, board, PLAYER_MARKER)
             if square:
                 break
+
+    if not square:
+        square = 5       
 
     if not square: # no defence or offence
         square = random.choice(empty_squares(board))
