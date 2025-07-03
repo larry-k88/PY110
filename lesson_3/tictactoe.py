@@ -11,12 +11,17 @@ WINNING_LINES = [
         [1, 4, 7], [2, 5, 8], [3, 6, 9],    # Columns
         [1, 5, 9], [3, 5, 7]                # Diagonals
     ]
-START_FIRST = 'player'
+PLAYERS = {
+    'Player': ['Player', 'player', 'p', 'pl'],
+    'Computer': ['Computer', 'computer', 'c', 'comp'],
+    }
+START_FIRST = 'Choose'
 
 def display_board(board):
     os.system('clear')
 
-    prompt(f"You are {PLAYER_MARKER}. Computer is {COMPUTER_MARKER}.")
+    prompt(f'{PLAYERS['Player'][0]} is {PLAYER_MARKER}.'
+           f'{PLAYERS['Computer'][0]} is {COMPUTER_MARKER}.')
     prompt(f'First to win {WINING_SCORE} rounds will win the match!')
     print('')
     print('     |     |     ')
@@ -41,7 +46,8 @@ def join_or(lst, separator1=', ', separator2='or'):
         case 2:
             return f"{lst[0]} {separator2} {lst[1]}"
 
-    first_elements = ''.join([f'{element}{separator1}' for element in lst[0:-1]])
+    first_elements = ''.join([f'{element}{separator1}'
+                             for element in lst[0:-1]])
     final_element = f'{separator2} {lst[-1]}'
 
     return first_elements + final_element
@@ -52,15 +58,18 @@ def initialise_board():
 def prompt(message):
     print(f'==> {message}')
 
-def starting_player(who_starts):
-    if who_starts in ('player', 'computer'):
-        return who_starts
-    
+def who_starts(first_player):
+    if first_player in PLAYERS.keys():
+        return first_player
+
     while True:
-        print('Who goes first? (player or computer)')
-        starting_player = input().lower()
-        if starting_player in ('player', 'computer'):
-            return starting_player
+        prompt(f'Who goes first? ({PLAYERS['Player'][0]} or '
+               f'{PLAYERS['Computer'][0]})')
+        player_choice = input().lower()
+        for player, variations in PLAYERS.items():
+            if player_choice in [variation.lower()
+                                 for variation in variations]:
+                return player
 
 def empty_squares(board):
     return [key for key, value in board.items()
@@ -105,7 +114,7 @@ def computer_choose_square(board):
                 break
 
     if not square and DEFAULT_SQUARE in empty_squares(board):
-        square = DEFAULT_SQUARE       
+        square = DEFAULT_SQUARE
 
     if not square: # no defence or offence
         square = random.choice(empty_squares(board))
@@ -124,16 +133,17 @@ def detect_winner(board):
         if (board[sq1] == PLAYER_MARKER
             and board[sq2] == PLAYER_MARKER
             and board[sq3] == PLAYER_MARKER):
-            return 'Player'
+            return PLAYERS['Player'][0]
         if (board[sq1] == COMPUTER_MARKER
             and board[sq2] == COMPUTER_MARKER
             and board[sq3] == COMPUTER_MARKER):
-            return 'Computer'
-
+            return PLAYERS['Computer'][0]
     return None
 
 def display_scores(player, computer):
-    print(f'Scores: \nPlayer: {player} \nComputer: {computer}')
+    print(f'Scores: \n'
+          f'{PLAYERS['Player'][0]}: {player}\n'
+          f'{PLAYERS['Computer'][0]}: {computer}')
 
 def display_winner(player, computer, board):
     if player > computer:
@@ -145,28 +155,43 @@ def play_tic_tac_toe():
     while True:
         player_score = 0
         computer_score = 0
+        starting_player = who_starts(START_FIRST)
+
         while WINING_SCORE not in (player_score, computer_score):
             board = initialise_board()
 
-            while True:
-                display_board(board)
+            if starting_player == PLAYERS['Player'][0]:
+                while True:
+                    display_board(board)
 
-                player_choose_square(board)
-                if someone_won(board) or board_full(board):
-                    break
+                    player_choose_square(board)
+                    if someone_won(board) or board_full(board):
+                        break
 
-                computer_choose_square(board)
-                if someone_won(board) or board_full(board):
-                    break
+                    computer_choose_square(board)
+                    if someone_won(board) or board_full(board):
+                        break
+
+            elif starting_player == PLAYERS['Computer'][0]:
+                while True:
+                    computer_choose_square(board)
+                    if someone_won(board) or board_full(board):
+                        break
+
+                    display_board(board)
+
+                    player_choose_square(board)
+                    if someone_won(board) or board_full(board):
+                        break
 
             display_board(board)
 
             if someone_won(board):
                 prompt(f'{detect_winner(board)} won this round!')
 
-                if detect_winner(board) == 'Player':
+                if detect_winner(board) == PLAYERS['Player'][0]:
                     player_score += 1
-                if detect_winner(board) == 'Computer':
+                if detect_winner(board) == PLAYERS['Computer'][0]:
                     computer_score += 1
 
             else:
