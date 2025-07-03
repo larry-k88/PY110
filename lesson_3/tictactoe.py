@@ -5,6 +5,7 @@ INITIAL_MARKER = ' '
 PLAYER_MARKER = 'X'
 COMPUTER_MARKER = 'O'
 WINING_SCORE = 3
+DEFAULT_SQUARE = 5
 WINNING_LINES = [
         [1, 2, 3], [4, 5, 6], [7, 8, 9],    # Rows
         [1, 4, 7], [2, 5, 8], [3, 6, 9],    # Columns
@@ -92,8 +93,8 @@ def computer_choose_square(board):
             if square:
                 break
 
-    if not square:
-        square = 5       
+    if not square and DEFAULT_SQUARE in empty_squares(board):
+        square = DEFAULT_SQUARE       
 
     if not square: # no defence or offence
         square = random.choice(empty_squares(board))
