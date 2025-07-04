@@ -11,17 +11,19 @@ WINNING_LINES = [
         [1, 4, 7], [2, 5, 8], [3, 6, 9],    # Columns
         [1, 5, 9], [3, 5, 7]                # Diagonals
     ]
+PLAYER_DISPLAY_NAME = 'Player'
+COMPUTER_DISPLAY_NAME = 'Computer'
 PLAYERS = {
-    'Player': ['Player', 'player', 'p', 'pl'],
-    'Computer': ['Computer', 'computer', 'c', 'comp'],
+    'Player': ['player', 'p', 'pl'],
+    'Computer': ['computer', 'c', 'comp'],
     }
 START_FIRST = 'Choose'
 
 def display_board(board):
     os.system('clear')
 
-    prompt(f'{PLAYERS['Player'][0]} is {PLAYER_MARKER}.'
-           f'{PLAYERS['Computer'][0]} is {COMPUTER_MARKER}.')
+    prompt(f'{PLAYER_DISPLAY_NAME} is {PLAYER_MARKER}. '
+           f'{COMPUTER_DISPLAY_NAME} is {COMPUTER_MARKER}.')
     prompt(f'First to win {WINING_SCORE} rounds will win the match!')
     print('')
     print('     |     |     ')
@@ -59,16 +61,15 @@ def prompt(message):
     print(f'==> {message}')
 
 def who_starts(first_player):
-    if first_player in PLAYERS.keys():
+    if first_player in PLAYERS:
         return first_player
 
     while True:
-        prompt(f'Who goes first? ({PLAYERS['Player'][0]} or '
-               f'{PLAYERS['Computer'][0]})')
+        prompt(f'Who goes first? Enter "{PLAYER_DISPLAY_NAME}" or '
+               f'"{COMPUTER_DISPLAY_NAME}")')
         player_choice = input().lower()
         for player, variations in PLAYERS.items():
-            if player_choice in [variation.lower()
-                                 for variation in variations]:
+            if player_choice in variations:
                 return player
 
 def empty_squares(board):
@@ -133,84 +134,95 @@ def detect_winner(board):
         if (board[sq1] == PLAYER_MARKER
             and board[sq2] == PLAYER_MARKER
             and board[sq3] == PLAYER_MARKER):
-            return PLAYERS['Player'][0]
+            return PLAYER_DISPLAY_NAME
         if (board[sq1] == COMPUTER_MARKER
             and board[sq2] == COMPUTER_MARKER
             and board[sq3] == COMPUTER_MARKER):
-            return PLAYERS['Computer'][0]
+            return COMPUTER_DISPLAY_NAME
     return None
 
-def display_scores(player, computer):
-    print(f'Scores: \n'
-          f'{PLAYERS['Player'][0]}: {player}\n'
-          f'{PLAYERS['Computer'][0]}: {computer}')
+def update_scores(board, scores):
+    if detect_winner(board) == PLAYER_DISPLAY_NAME:
+        scores['player'] += 1
+    if detect_winner(board) == COMPUTER_DISPLAY_NAME:
+        scores['computer'] += 1
+    return scores
 
-def display_winner(player, computer, board):
-    if player > computer:
-        prompt(f'{detect_winner(board)} won the match')
+def display_scores(scores):
+    print(f'Scores: \n'
+          f'{PLAYER_DISPLAY_NAME}: {scores['player']}\n'
+          f'{COMPUTER_DISPLAY_NAME}: {scores['computer']}')
+
+def display_round_winner(board):
+    if someone_won(board):
+        prompt(f'{detect_winner(board)} won this round!')
     else:
-        prompt(f'{detect_winner(board)} won the match')
+        prompt('It\'s a tie!')
+
+def display_match_winner(scores):
+    if scores['player'] > scores['computer']:
+        prompt(f'{PLAYER_DISPLAY_NAME} won the match')
+    else:
+        prompt(f'{COMPUTER_DISPLAY_NAME} won the match')
+
+def play_another_round():
+    prompt('Do you want to play the next round? (y or n)')
+    while True:
+        answer = input().lower()
+        if answer == 'y':
+            return True
+        if answer == 'n':
+            return False
+        prompt('Do you want to play the next round? (y or n)')
+
+def play_another_match():
+    prompt('Do you want to start a new match? (y or n)')
+    while True:
+        answer = input().lower()
+        if answer == 'y':
+            return True
+        if answer == 'n':
+            return False
+        prompt('Do you want to start a new match? (y or n)')
+
+def choose_square(board, current_player):
+    if current_player == PLAYER_DISPLAY_NAME:
+        player_choose_square(board)
+    if current_player == COMPUTER_DISPLAY_NAME:
+        computer_choose_square(board)
+
+
+def alternate_player(current_player):
+    return (COMPUTER_DISPLAY_NAME if current_player == PLAYER_DISPLAY_NAME
+            else PLAYER_DISPLAY_NAME)
 
 def play_tic_tac_toe():
     while True:
-        player_score = 0
-        computer_score = 0
-        starting_player = who_starts(START_FIRST)
+        scores = {'player': 0, 'computer': 0}
+        current_player = who_starts(START_FIRST)
 
-        while WINING_SCORE not in (player_score, computer_score):
+        while WINING_SCORE not in (scores.values()):
             board = initialise_board()
 
-            if starting_player == PLAYERS['Player'][0]:
-                while True:
-                    display_board(board)
-
-                    player_choose_square(board)
-                    if someone_won(board) or board_full(board):
-                        break
-
-                    computer_choose_square(board)
-                    if someone_won(board) or board_full(board):
-                        break
-
-            elif starting_player == PLAYERS['Computer'][0]:
-                while True:
-                    computer_choose_square(board)
-                    if someone_won(board) or board_full(board):
-                        break
-
-                    display_board(board)
-
-                    player_choose_square(board)
-                    if someone_won(board) or board_full(board):
-                        break
+            while True:
+                display_board(board)
+                choose_square(board, current_player)
+                current_player = alternate_player(current_player)
+                if someone_won(board) or board_full(board):
+                    break
 
             display_board(board)
+            display_round_winner(board)
+            update_scores(board, scores)
+            display_scores(scores)
 
-            if someone_won(board):
-                prompt(f'{detect_winner(board)} won this round!')
-
-                if detect_winner(board) == PLAYERS['Player'][0]:
-                    player_score += 1
-                if detect_winner(board) == PLAYERS['Computer'][0]:
-                    computer_score += 1
-
-            else:
-                prompt('It\'s a tie!')
-
-            display_scores(player_score, computer_score)
-
-            if WINING_SCORE in (player_score, computer_score):
-                display_winner(player_score, computer_score, board)
+            if WINING_SCORE in scores.values():
+                display_match_winner(scores)
+                break
+            if not play_another_round():
                 break
 
-            prompt('Do you want to play the next round? (y or n)')
-            answer = input().lower()
-            if answer != 'y':
-                break
-
-        prompt('Do you want to start a new match? (y or n)')
-        answer = input().lower()
-        if answer != 'y':
+        if not play_another_match():
             break
 
     prompt('Thanks for playing Tic Tac Toe')
