@@ -4,7 +4,7 @@ import random
 INITIAL_MARKER = ' '
 PLAYER_MARKER = 'X'
 COMPUTER_MARKER = 'O'
-WINING_SCORE = 3
+WINNING_SCORE = 3
 DEFAULT_SQUARE = 5
 WINNING_LINES = [
         [1, 2, 3], [4, 5, 6], [7, 8, 9],    # Rows
@@ -24,7 +24,7 @@ def display_board(board):
 
     prompt(f'{PLAYER_DISPLAY_NAME} is {PLAYER_MARKER}. '
            f'{COMPUTER_DISPLAY_NAME} is {COMPUTER_MARKER}.')
-    prompt(f'First to win {WINING_SCORE} rounds will win the match!')
+    prompt(f'First to win {WINNING_SCORE} rounds will win the match!')
     print('')
     print('     |     |     ')
     print(f'  {board[1]}  |  {board[2]}  |  {board[3]}  ')
@@ -66,7 +66,7 @@ def who_starts(first_player):
 
     while True:
         prompt(f'Who goes first? Enter "{PLAYER_DISPLAY_NAME}" or '
-               f'"{COMPUTER_DISPLAY_NAME}")')
+               f'"{COMPUTER_DISPLAY_NAME}"')
         player_choice = input().lower()
         for player, variations in PLAYERS.items():
             if player_choice in variations:
@@ -141,10 +141,10 @@ def detect_winner(board):
             return COMPUTER_DISPLAY_NAME
     return None
 
-def update_scores(board, scores):
-    if detect_winner(board) == PLAYER_DISPLAY_NAME:
+def update_scores(winner, scores):
+    if winner == PLAYER_DISPLAY_NAME:
         scores['player'] += 1
-    if detect_winner(board) == COMPUTER_DISPLAY_NAME:
+    if winner == COMPUTER_DISPLAY_NAME:
         scores['computer'] += 1
     return scores
 
@@ -153,9 +153,9 @@ def display_scores(scores):
           f'{PLAYER_DISPLAY_NAME}: {scores['player']}\n'
           f'{COMPUTER_DISPLAY_NAME}: {scores['computer']}')
 
-def display_round_winner(board):
+def display_round_winner(board, winner):
     if someone_won(board):
-        prompt(f'{detect_winner(board)} won this round!')
+        prompt(f'{winner} won this round!')
     else:
         prompt('It\'s a tie!')
 
@@ -164,26 +164,15 @@ def display_match_winner(scores):
         prompt(f'{PLAYER_DISPLAY_NAME} won the match')
     else:
         prompt(f'{COMPUTER_DISPLAY_NAME} won the match')
-
-def play_another_round():
-    prompt('Do you want to play the next round? (y or n)')
+   
+def play_again():
     while True:
         answer = input().lower()
-        if answer == 'y':
+        if answer in ('y', 'yes'):
             return True
-        if answer == 'n':
+        if answer in ('n', 'no'):
             return False
-        prompt('Do you want to play the next round? (y or n)')
-
-def play_another_match():
-    prompt('Do you want to start a new match? (y or n)')
-    while True:
-        answer = input().lower()
-        if answer == 'y':
-            return True
-        if answer == 'n':
-            return False
-        prompt('Do you want to start a new match? (y or n)')
+        prompt('Please enter "y" or "n"')
 
 def choose_square(board, current_player):
     if current_player == PLAYER_DISPLAY_NAME:
@@ -201,7 +190,7 @@ def play_tic_tac_toe():
         scores = {'player': 0, 'computer': 0}
         current_player = who_starts(START_FIRST)
 
-        while WINING_SCORE not in (scores.values()):
+        while WINNING_SCORE not in (scores.values()):
             board = initialise_board()
 
             while True:
@@ -212,17 +201,20 @@ def play_tic_tac_toe():
                     break
 
             display_board(board)
-            display_round_winner(board)
-            update_scores(board, scores)
+            winner = detect_winner(board)
+            display_round_winner(board, winner)
+            update_scores(winner, scores)
             display_scores(scores)
 
-            if WINING_SCORE in scores.values():
+            if WINNING_SCORE in scores.values():
                 display_match_winner(scores)
                 break
-            if not play_another_round():
+            prompt('Do you want to play the next round? (y or n)')
+            if not play_again():
                 break
 
-        if not play_another_match():
+        prompt('Do you want to start a new match? (y or n)')
+        if not play_again():
             break
 
     prompt('Thanks for playing Tic Tac Toe')
