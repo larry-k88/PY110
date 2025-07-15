@@ -45,18 +45,31 @@ def initialise_deck(cards, starting_number):
 def deal(deck):
     return [deck.pop(), deck.pop()]
 
-def display_cards(player, values):
-    if player == dealer_cards:
-        prompt(f'Dealer has: {join_and(list(player))}, for a total of '
-               f'{total_hand(player, values)}')
-    if player == player_cards:
-        prompt(f'You have:   {join_and(list(player))}, for a total of '
-               f'{total_hand(player, values)}')
+def display_cards(player, player_type, total):
+    cards_str = join_and(list(player))
+
+    if player_type == 'dealer': # issues - LSBot
+        prompt(f'Dealer has: {cards_str}, for a total of '
+               f'{total}')
+    if player_type == 'player':
+        prompt(f'You have:   {cards_str}, for a total of '
+               f'{total}')
 
 def play_again():
-    print("-------------")
-    answer = input('Do you want to play again? (y or n) ')
-    return answer == 'y'
+    while True:
+        print("-------------")
+        answer = input('Do you want to play again? '
+                       '(y or n)\n').casefold().strip()
+        if answer in ['y', 'yes', 'n', 'no']:
+            return answer[0] == 'y'
+        prompt('Please enter "y" or "n"')
+
+def get_player_choice():
+    while True:
+        answer = input('Do you want to (h)it or (s)tay? ').casefold().strip()
+        if answer in ['h', 'hit', 's', 'stay']:
+            return answer[0]
+        prompt('Please enter "h" or "s"')
 
 def total_hand(cards, values):
     total = sum([values[card] for card in cards])
@@ -68,13 +81,30 @@ def total_hand(cards, values):
 
     return total
 
-def busted(hand, values):
-    return total_hand(hand, values) > 21
+def player_turn(player, deck, values):
+    while True:
+        choice = get_player_choice()
+        if choice == 'h':
+            player.append(deck.pop())
+            total = total_hand(player, values)
+            display_cards(player, 'player', total)
 
-def who_won(player, dealer, values):
-    player_total = total_hand(player, values)
-    dealer_total = total_hand(dealer, values)
+        if choice == 's' or total > 21:
+            break
+    return total_hand(player, values)
 
+def dealer_turn(dealer, deck, values):
+    prompt('Dealer\'s turn:')
+
+    while total_hand(dealer, values) < 17:
+        prompt('Dealer hits!')
+        dealer.append(deck.pop())
+        total = total_hand(dealer, values)
+        display_cards(dealer, 'dealer', total)
+
+    return total_hand(dealer, values)
+
+def who_won(player_total, dealer_total):
     if player_total > 21:
         return 'player_busted'
     if dealer_total > 21:
@@ -85,11 +115,11 @@ def who_won(player, dealer, values):
         return 'dealer'
     return 'tie'
 
-def display_winner(player, dealer, values):
+def display_winner(player, dealer, player_total, dealer_total):
     print('\nRESULTS')
-    display_cards(dealer, values)
-    display_cards(player_cards, values)
-    match who_won(player, dealer, values):
+    display_cards(dealer, 'dealer', dealer_total)
+    display_cards(player, 'player', player_total)
+    match who_won(player_total, dealer_total):
         case 'player_busted':
             prompt('You went bust - Dealer wins!')
         case 'dealer_busted':
@@ -101,68 +131,48 @@ def display_winner(player, dealer, values):
         case 'tie':
             prompt('It\'s a tie!')
 
-### main code starts here
-while True:
-    os.system('clear')
-
-    prompt('Welcome to Twenty One! ' \
-    'Press any key to deal the cards, or type "exit" to quit\n')
-
-    start_game = input()
-    if start_game in ['Exit', 'exit']:
-        break
+def play_single_game():
 
     current_deck = initialise_deck(CARD_VALUES, STARTING_NUMBER)
     player_cards = deal(current_deck)
     dealer_cards = deal(current_deck)
 
+    player_total = total_hand(player_cards, CARD_VALUES)
+    dealer_total = total_hand(dealer_cards, CARD_VALUES)
+
     prompt(f'Dealer has: {dealer_cards[0]} and ?')
-    display_cards(player_cards, CARD_VALUES)
+    display_cards(player_cards, 'player', player_total)
 
-    while True:
-        player_choice = input('\nDo you want to (h)it or (s)tay?\n')
-        if player_choice not in ['h', 's']:
-            prompt('Please enter "h" or "s"')
-            continue
+    player_total = player_turn(player_cards, current_deck, CARD_VALUES)
 
-        if player_choice == 'h':
-            player_cards.append(current_deck.pop())
-            display_cards(player_cards, CARD_VALUES)
+    if player_total > 21:
+        display_winner(player_cards, dealer_cards, player_total, dealer_total)
+        return
 
-        if player_choice == 's' or busted(player_cards, CARD_VALUES):
-            break
+    prompt(f'You chose to stay at {player_total}\n')
 
-    if busted(player_cards, CARD_VALUES):
-        display_winner(player_cards, dealer_cards, CARD_VALUES)
+    dealer_total = dealer_turn(dealer_cards, current_deck, CARD_VALUES)
 
-        if play_again():
-            continue
-        else:
-            break
+    if dealer_total > 21:
+        display_winner(player_cards, dealer_cards, player_total, dealer_total)
+        return
 
-    else:
-        prompt(f'You chose to stay at {total_hand(player_cards, CARD_VALUES)}\n')
+    prompt(f'Dealer stays at {dealer_total}')
 
-    # dealer's turn
-    prompt('Dealer\'s turn:')
+    display_winner(player_cards, dealer_cards, player_total, dealer_total)
 
-    while total_hand(dealer_cards, CARD_VALUES) < 17:
-        prompt('Dealer hits!')
-        dealer_cards.append(current_deck.pop())
-        display_cards(dealer_cards, CARD_VALUES)
+### main code starts here
+while True:
+    os.system('clear')
 
-    if busted(dealer_cards, CARD_VALUES):
-        display_winner(player_cards, dealer_cards, CARD_VALUES)
+    prompt('Welcome to Twenty One! ' \
+    'Press any key to deal the cards, or type "exit" to quit')
 
-        if play_again():
-            continue
-        else:
-            break
+    start_game = input()
+    if start_game.casefold() == 'exit':
+        break
 
-    else:
-        prompt(f'Dealer stays at {total_hand(dealer_cards, CARD_VALUES)}')
-
-    display_winner(player_cards, dealer_cards, CARD_VALUES)
+    play_single_game()
 
     if not play_again():
         break

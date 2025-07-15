@@ -34,12 +34,10 @@ def total(cards):
 
     return sum_val
 
-def busted(cards):
-    return total(cards) > 21
+def busted(total):
+    return total > 21
 
-def detect_result(dealer_cards, player_cards):
-    player_total = total(player_cards)
-    dealer_total = total(dealer_cards)
+def detect_result(dealer_total, player_total):
 
     if player_total > 21:
         return 'PLAYER_BUSTED'
@@ -52,8 +50,8 @@ def detect_result(dealer_cards, player_cards):
     else:
         return 'TIE'
 
-def display_results(dealer_cards, player_cards):
-    result = detect_result(dealer_cards, player_cards)
+def display_results(dealer_total, player_total):
+    result = detect_result(dealer_total, player_total)
 
     match result:
         case 'PLAYER_BUSTED':
@@ -87,9 +85,11 @@ while True:
     player_cards = pop_two_from_deck(deck)
     dealer_cards = pop_two_from_deck(deck)
 
+    player_total = total(player_cards)
+    dealer_total = total(dealer_cards)
 
     prompt(f"Dealer has {dealer_cards[0]} and ?")
-    prompt(f"You have: {player_cards[0]} and {player_cards[1]}, for a total of {total(player_cards)}.")
+    prompt(f"You have: {player_cards[0]} and {player_cards[1]}, for a total of {player_total}.")
 
     # player turn
     while True:
@@ -100,44 +100,48 @@ while True:
 
         if player_choice == 'h':
             player_cards.append(deck.pop())
+            player_total = total(player_cards)
             prompt('You chose to hit!')
             prompt(f"Your cards are now: {hand(player_cards)}")
-            prompt(f"Your total is now: {total(player_cards)}")
+            prompt(f"Your total is now: {player_total}")
 
-        if player_choice == 's' or busted(player_cards):
+        if player_choice == 's' or busted(player_total):
             break
 
-    if busted(player_cards):
-        display_results(dealer_cards, player_cards)
+    if busted(player_total):
+        display_results(dealer_total, player_total)
         if play_again():
             continue
     else:
-        prompt(f"You stayed at {total(player_cards)}")
+        prompt(f"You stayed at {player_total}")
 
     # dealer turn
     prompt("Dealer's turn...")
 
-    while total(dealer_cards) < 17:
+    while dealer_total < 17:
         prompt("Dealer hits!")
         dealer_cards.append(deck.pop())
+        dealer_total = total(dealer_cards)
         prompt(f"Dealer's cards are now: {hand(dealer_cards)}")
 
-    if busted(dealer_cards):
-        prompt(f"Dealer total is now: {total(dealer_cards)}")
-        display_results(dealer_cards, player_cards)
+    if busted(dealer_total):
+        prompt(f"Dealer total is now: {dealer_total}")
+        display_results(dealer_total, player_total)
         if play_again():
             continue
     else:
-        prompt(f"Dealer stays at {total(dealer_cards)}")
+        prompt(f"Dealer stays at {dealer_total}")
 
     # both player and dealer stays - compare cards!
 
     print('==============')
-    prompt(f"Dealer has {hand(dealer_cards)}, for a total of: {total(dealer_cards)}")
-    prompt(f"Player has {hand(player_cards)}, for a total of: {total(player_cards)}")
+    prompt(f"Dealer has {hand(dealer_cards)}, "
+           f"for a total of: {dealer_total}")
+    prompt(f"Player has {hand(player_cards)}, "
+           f"for a total of: {player_total}")
     print('==============')
 
-    display_results(dealer_cards, player_cards)
+    display_results(dealer_total, player_total)
 
     if not play_again():
         break
