@@ -2,6 +2,8 @@ import os
 import random
 
 STARTING_NUMBER = 4
+MAX_SCORE = 3
+ROUND = 1
 
 CARD_VALUES = {
     '2': 2,
@@ -58,8 +60,8 @@ def display_cards(player, player_type, total):
 def play_again():
     while True:
         print("-------------")
-        answer = input('Do you want to play again? '
-                       '(y or n)\n').casefold().strip()
+        answer = (input('Do you want to play the next round? (y or n)\n')
+                  .casefold().strip())
         if answer in ['y', 'yes', 'n', 'no']:
             return answer[0] == 'y'
         prompt('Please enter "y" or "n"')
@@ -130,7 +132,20 @@ def display_winner(player, dealer, player_total, dealer_total):
             prompt('Dealer wins!')
         case 'tie':
             prompt('It\'s a tie!')
+        
+def update_scores(winner):
+    global total_score_player
+    global total_score_dealer
+    if winner == 'player' or winner == 'dealer_busted':
+        total_score_player += 1
+    
+    elif winner == 'dealer' or winner == 'player_busted':
+        total_score_dealer += 1
 
+def display_scores():
+    print(f'SCORES:'
+          f'\nPlayer: {total_score_player}\nDealer: {total_score_dealer}\n')
+    
 def play_single_game():
 
     current_deck = initialise_deck(CARD_VALUES, STARTING_NUMBER)
@@ -147,7 +162,7 @@ def play_single_game():
 
     if player_total > 21:
         display_winner(player_cards, dealer_cards, player_total, dealer_total)
-        return
+        return who_won(player_total, dealer_total)
 
     prompt(f'You chose to stay at {player_total}\n')
 
@@ -155,24 +170,42 @@ def play_single_game():
 
     if dealer_total > 21:
         display_winner(player_cards, dealer_cards, player_total, dealer_total)
-        return
+        return who_won(player_total, dealer_total)
 
     prompt(f'Dealer stays at {dealer_total}')
 
     display_winner(player_cards, dealer_cards, player_total, dealer_total)
 
+    return who_won(player_total, dealer_total)
+
 ### main code starts here
+total_score_player = 0
+total_score_dealer = 0
+prompt('Welcome to Twenty One - best of 5 rounds! \n')
+
 while True:
-    os.system('clear')
 
-    prompt('Welcome to Twenty One! ' \
-    'Press any key to deal the cards, or type "exit" to quit')
-
+    prompt('Press any key to deal the cards, or type "exit" to quit')
     start_game = input()
     if start_game.casefold() == 'exit':
         break
 
-    play_single_game()
+    os.system('clear')
+    prompt(f'Round {ROUND}\n')
+    ROUND += 1
+    
+    display_scores()
+    winner = play_single_game()
+    update_scores(winner)
+    print()
+    display_scores()
+
+    if total_score_player == MAX_SCORE:
+        prompt('Game over - you win!')
+        break
+    if total_score_dealer == MAX_SCORE:
+        prompt('Game over - you lose!')
+        break
 
     if not play_again():
         break
