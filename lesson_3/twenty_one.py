@@ -143,7 +143,7 @@ def update_scores(winner, scores):
 
 def display_scores(scores):
     print(f'SCORES:'
-          f'\nPlayer: {scores['player']}\nDealer: {scores['dealer']}\n')
+          f'\nDealer: {scores['dealer']}\nPlayer: {scores['player']}\n')
 
 def play_single_game():
 
@@ -177,41 +177,43 @@ def play_single_game():
 
     return who_won(player_total, dealer_total)
 
-### main code starts here
-current_scores = {'player': 0, 'dealer': 0}
-current_round = 1
-p = inflect.engine()
+def play_twenty_one():
+    current_scores = {'player': 0, 'dealer': 0}
+    current_round = 1
+    p = inflect.engine()
 
-prompt(f'Welcome to {p.number_to_words(WINNING_TOTAL).title()}'
-       f' - first to {MAX_SCORE} rounds is the winner! \n')
+    prompt(f'Welcome to {p.number_to_words(WINNING_TOTAL).title()}'
+           f' - first to {MAX_SCORE} rounds is the winner! \n')
+    
+    while True:
 
-while True:
+        prompt(MESSAGES['deal_rules_exit'])
+        start_game = input()
+        if start_game.casefold().strip() == 'exit':
+            break
+        if start_game.casefold().strip() == 'rules':
+            prompt(MESSAGES['rules'])
+            prompt(MESSAGES['continue'])
+            input()
 
-    prompt(MESSAGES['deal_rules_exit'])
-    start_game = input()
-    if start_game.casefold().strip() == 'exit':
-        break
-    if start_game.casefold().strip() == 'rules':
-        prompt(MESSAGES['rules'])
-        prompt(MESSAGES['continue'])
-        input()
+        os.system('clear')
+        prompt(f'Round {current_round}\n')
+        current_round += 1
 
-    os.system('clear')
-    prompt(f'Round {current_round}\n')
-    current_round += 1
+        display_scores(current_scores)
+        round_winner = play_single_game()
+        current_scores = update_scores(round_winner, current_scores)
+        print()
+        display_scores(current_scores)
 
-    display_scores(current_scores)
-    round_winner = play_single_game()
-    current_scores = update_scores(round_winner, current_scores)
-    print()
-    display_scores(current_scores)
+        if current_scores['player'] == MAX_SCORE:
+            prompt(MESSAGES['play_win_game'])
+            break
+        if current_scores['dealer'] == MAX_SCORE:
+            prompt(MESSAGES['dealer_win_game'])
+            break
 
-    if current_scores['player'] == MAX_SCORE:
-        prompt(MESSAGES['play_win_game'])
-        break
-    if current_scores['dealer'] == MAX_SCORE:
-        prompt(MESSAGES['dealer_win_game'])
-        break
+        if not play_again():
+            break
 
-    if not play_again():
-        break
+play_twenty_one()
