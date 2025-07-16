@@ -1,6 +1,10 @@
 import os
 import random
+import json
 import inflect
+
+with open('twenty_one.json', 'r') as file:
+    MESSAGES = json.load(file)
 
 STARTING_NUMBER = 4
 MAX_SCORE = 3
@@ -51,29 +55,24 @@ def deal(deck):
 
 def display_cards(player, player_type, total):
     cards_str = join_and(list(player))
+    prefix = 'Dealer has: ' if player_type == 'dealer' else 'You have:   '
 
-    if player_type == 'dealer': # issues - LSBot
-        prompt(f'Dealer has: {cards_str}, for a total of '
-               f'{total}')
-    if player_type == 'player':
-        prompt(f'You have:   {cards_str}, for a total of '
-               f'{total}')
+    prompt(f'{prefix}{cards_str}, for a total of {total}')
 
 def play_again():
     while True:
         print("-------------")
-        answer = (input('Do you want to play the next round? (y or n)\n')
-                  .casefold().strip())
+        answer = (input(MESSAGES["play_next_round"]).casefold().strip())
         if answer in ['y', 'yes', 'n', 'no']:
             return answer[0] == 'y'
-        prompt('Please enter "y" or "n"')
+        prompt(MESSAGES['play_next_round_error'])
 
 def get_player_choice():
     while True:
-        answer = input('Do you want to (h)it or (s)tay? ').casefold().strip()
+        answer = input(MESSAGES['hit_or_stay']).casefold().strip()
         if answer in ['h', 'hit', 's', 'stay']:
             return answer[0]
-        prompt('Please enter "h" or "s"')
+        prompt(MESSAGES['hit_or_stay_error'])
 
 def total_hand(cards, values):
     total = sum([values[card] for card in cards])
@@ -98,10 +97,10 @@ def player_turn(player, deck, values):
     return total_hand(player, values)
 
 def dealer_turn(dealer, deck, values):
-    prompt('Dealer\'s turn:')
+    prompt(MESSAGES['dealer_turn'])
 
     while total_hand(dealer, values) < DEALER_LIMIT:
-        prompt('Dealer hits!')
+        prompt(MESSAGES['dealer_hit'])
         dealer.append(deck.pop())
         total = total_hand(dealer, values)
         display_cards(dealer, 'dealer', total)
@@ -120,20 +119,20 @@ def who_won(player_total, dealer_total):
     return 'tie'
 
 def display_winner(player, dealer, player_total, dealer_total):
-    print('\nRESULTS')
+    print(MESSAGES['results'])
     display_cards(dealer, 'dealer', dealer_total)
     display_cards(player, 'player', player_total)
     match who_won(player_total, dealer_total):
         case 'player_busted':
-            prompt('You went bust - Dealer wins the round!')
+            prompt(MESSAGES['player_busted'])
         case 'dealer_busted':
-            prompt('Dealer went bust - you win the round!')
+            prompt(MESSAGES['dealer_busted'])
         case 'player':
-            prompt('You win the round!')
+            prompt(MESSAGES['player_win_round'])
         case 'dealer':
-            prompt('Dealer wins the round!')
+            prompt(MESSAGES['dealer_win_round'])
         case 'tie':
-            prompt('It\'s a tie!')
+            prompt(MESSAGES['tie'])
 
 def update_scores(winner, scores):
     if winner in ('player', 'dealer_busted'):
@@ -155,7 +154,7 @@ def play_single_game():
     player_total = total_hand(player_cards, CARD_VALUES)
     dealer_total = total_hand(dealer_cards, CARD_VALUES)
 
-    prompt(f'Dealer has: {dealer_cards[0]} and ?')
+    prompt(f'Dealer has: {dealer_cards[0]} and ??')
     display_cards(player_cards, 'player', player_total)
 
     player_total = player_turn(player_cards, current_deck, CARD_VALUES)
@@ -184,14 +183,18 @@ current_round = 1
 p = inflect.engine()
 
 prompt(f'Welcome to {p.number_to_words(WINNING_TOTAL).title()}'
-       f' - best of 5 rounds! \n')
+       f' - first to {MAX_SCORE} rounds is the winner! \n')
 
 while True:
 
-    prompt('Press any key to deal the cards, or type "exit" to quit')
+    prompt(MESSAGES['deal_rules_exit'])
     start_game = input()
-    if start_game.casefold() == 'exit':
+    if start_game.casefold().strip() == 'exit':
         break
+    if start_game.casefold().strip() == 'rules':
+        prompt(MESSAGES['rules'])
+        prompt(MESSAGES['continue'])
+        input()
 
     os.system('clear')
     prompt(f'Round {current_round}\n')
@@ -204,13 +207,11 @@ while True:
     display_scores(current_scores)
 
     if current_scores['player'] == MAX_SCORE:
-        prompt('You win the game!')
+        prompt(MESSAGES['play_win_game'])
         break
     if current_scores['dealer'] == MAX_SCORE:
-        prompt('Dealer wins the game!')
+        prompt(MESSAGES['dealer_win_game'])
         break
 
     if not play_again():
         break
-
-# Grok - pylint errors
