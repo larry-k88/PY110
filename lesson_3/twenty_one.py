@@ -1,8 +1,11 @@
 import os
 import random
+import inflect
 
 STARTING_NUMBER = 4
 MAX_SCORE = 3
+WINNING_TOTAL = 21
+DEALER_LIMIT = 17
 
 CARD_VALUES = {
     '2': 2,
@@ -76,7 +79,7 @@ def total_hand(cards, values):
     total = sum([values[card] for card in cards])
 
     aces = cards.count('Ace')
-    while total > 21 and aces:
+    while total > WINNING_TOTAL and aces:
         total -= 10
         aces -= 1
 
@@ -90,14 +93,14 @@ def player_turn(player, deck, values):
             total = total_hand(player, values)
             display_cards(player, 'player', total)
 
-        if choice == 's' or total > 21:
+        if choice == 's' or total > WINNING_TOTAL:
             break
     return total_hand(player, values)
 
 def dealer_turn(dealer, deck, values):
     prompt('Dealer\'s turn:')
 
-    while total_hand(dealer, values) < 17:
+    while total_hand(dealer, values) < DEALER_LIMIT:
         prompt('Dealer hits!')
         dealer.append(deck.pop())
         total = total_hand(dealer, values)
@@ -106,9 +109,9 @@ def dealer_turn(dealer, deck, values):
     return total_hand(dealer, values)
 
 def who_won(player_total, dealer_total):
-    if player_total > 21:
+    if player_total > WINNING_TOTAL:
         return 'player_busted'
-    if dealer_total > 21:
+    if dealer_total > WINNING_TOTAL:
         return 'dealer_busted'
     if player_total > dealer_total:
         return 'player'
@@ -157,7 +160,7 @@ def play_single_game():
 
     player_total = player_turn(player_cards, current_deck, CARD_VALUES)
 
-    if player_total > 21:
+    if player_total > WINNING_TOTAL:
         display_winner(player_cards, dealer_cards, player_total, dealer_total)
         return who_won(player_total, dealer_total)
 
@@ -165,7 +168,7 @@ def play_single_game():
 
     dealer_total = dealer_turn(dealer_cards, current_deck, CARD_VALUES)
 
-    if dealer_total > 21:
+    if dealer_total > WINNING_TOTAL:
         display_winner(player_cards, dealer_cards, player_total, dealer_total)
         return who_won(player_total, dealer_total)
 
@@ -178,8 +181,10 @@ def play_single_game():
 ### main code starts here
 current_scores = {'player': 0, 'dealer': 0}
 current_round = 1
+p = inflect.engine()
 
-prompt('Welcome to Twenty One - best of 5 rounds! \n')
+prompt(f'Welcome to {p.number_to_words(WINNING_TOTAL).title()}'
+       f' - best of 5 rounds! \n')
 
 while True:
 
