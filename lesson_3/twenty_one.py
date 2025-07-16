@@ -3,7 +3,6 @@ import random
 
 STARTING_NUMBER = 4
 MAX_SCORE = 3
-ROUND = 1
 
 CARD_VALUES = {
     '2': 2,
@@ -123,29 +122,27 @@ def display_winner(player, dealer, player_total, dealer_total):
     display_cards(player, 'player', player_total)
     match who_won(player_total, dealer_total):
         case 'player_busted':
-            prompt('You went bust - Dealer wins!')
+            prompt('You went bust - Dealer wins the round!')
         case 'dealer_busted':
-            prompt('Dealer went bust - you win!')
+            prompt('Dealer went bust - you win the round!')
         case 'player':
-            prompt('You win!')
+            prompt('You win the round!')
         case 'dealer':
-            prompt('Dealer wins!')
+            prompt('Dealer wins the round!')
         case 'tie':
             prompt('It\'s a tie!')
-        
-def update_scores(winner):
-    global total_score_player
-    global total_score_dealer
-    if winner == 'player' or winner == 'dealer_busted':
-        total_score_player += 1
-    
-    elif winner == 'dealer' or winner == 'player_busted':
-        total_score_dealer += 1
 
-def display_scores():
+def update_scores(winner, scores):
+    if winner in ('player', 'dealer_busted'):
+        scores['player'] += 1
+    elif winner in ('dealer', 'player_busted'):
+        scores['dealer'] += 1
+    return scores
+
+def display_scores(scores):
     print(f'SCORES:'
-          f'\nPlayer: {total_score_player}\nDealer: {total_score_dealer}\n')
-    
+          f'\nPlayer: {scores['player']}\nDealer: {scores['dealer']}\n')
+
 def play_single_game():
 
     current_deck = initialise_deck(CARD_VALUES, STARTING_NUMBER)
@@ -179,8 +176,9 @@ def play_single_game():
     return who_won(player_total, dealer_total)
 
 ### main code starts here
-total_score_player = 0
-total_score_dealer = 0
+current_scores = {'player': 0, 'dealer': 0}
+current_round = 1
+
 prompt('Welcome to Twenty One - best of 5 rounds! \n')
 
 while True:
@@ -191,21 +189,23 @@ while True:
         break
 
     os.system('clear')
-    prompt(f'Round {ROUND}\n')
-    ROUND += 1
-    
-    display_scores()
-    winner = play_single_game()
-    update_scores(winner)
-    print()
-    display_scores()
+    prompt(f'Round {current_round}\n')
+    current_round += 1
 
-    if total_score_player == MAX_SCORE:
-        prompt('Game over - you win!')
+    display_scores(current_scores)
+    round_winner = play_single_game()
+    current_scores = update_scores(round_winner, current_scores)
+    print()
+    display_scores(current_scores)
+
+    if current_scores['player'] == MAX_SCORE:
+        prompt('You win the game!')
         break
-    if total_score_dealer == MAX_SCORE:
-        prompt('Game over - you lose!')
+    if current_scores['dealer'] == MAX_SCORE:
+        prompt('Dealer wins the game!')
         break
 
     if not play_again():
         break
+
+# Grok - pylint errors
