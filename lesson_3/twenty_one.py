@@ -1,6 +1,7 @@
 import os
 import random
 import json
+import time
 import inflect
 
 with open('twenty_one.json', 'r') as file:
@@ -86,6 +87,7 @@ def total_hand(cards, values):
 
 def player_turn(player, deck, values):
     while True:
+        time.sleep(1)
         choice = get_player_choice()
         if choice == 'h':
             player.append(deck.pop())
@@ -98,12 +100,15 @@ def player_turn(player, deck, values):
 
 def dealer_turn(dealer, deck, values):
     prompt(MESSAGES['dealer_turn'])
+    time.sleep(1)
 
     while total_hand(dealer, values) < DEALER_LIMIT:
         prompt(MESSAGES['dealer_hit'])
+        time.sleep(1.5)
         dealer.append(deck.pop())
         total = total_hand(dealer, values)
         display_cards(dealer, 'dealer', total)
+        time.sleep(1)
 
     return total_hand(dealer, values)
 
@@ -154,7 +159,11 @@ def play_single_game():
     player_total = total_hand(player_cards, CARD_VALUES)
     dealer_total = total_hand(dealer_cards, CARD_VALUES)
 
+    prompt(MESSAGES['dealing'])
+    time.sleep(1)
+
     prompt(f'Dealer has: {dealer_cards[0]} and ??')
+    time.sleep(1)
     display_cards(player_cards, 'player', player_total)
 
     player_total = player_turn(player_cards, current_deck, CARD_VALUES)

@@ -2,6 +2,7 @@
     "deal_rules_exit": "Type:\n\"rules\" to view the rules of the game,\n\"exit\" to quit the game, or\npress any key to deal the cards",
     "rules": "Rules of Twenty-One:\nThe goal is to get your combined card values as close to 21 as possible.\nIf you go over 21, you are bust and lose.\nYou also need to beat the dealer's hand to win.\nYou are each dealt 2 cards, but you will only be able to see one of the dealer's cards.\nYou will go first and decide to \"hit\" or \"stay\" - if you \"hit\", you will be dealt a card from the deck.\nIf decide to \"stay\" (and are not bust), the dealer will have their turn.\nYou will now be able to see all their cards. They will \"stay\" if their total is 17 or over.\nIf the dealer goes bust, you win!",
     "continue": "Press any key to start",
+    "dealing": "Dealing cards...",
     "play_next_round": "Do you want to play the next round? (y or n)\n",
     "play_next_round_error": "Please enter \"y\" or \"n\"",
     "hit_or_stay": "Do you want to (h)it or (s)tay?\n",
