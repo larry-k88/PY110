@@ -12,7 +12,10 @@ def leading_substrings(string):
     return [string[:i] for i in range(1, len(string) + 1)]
 
 def substrings(string):
-    pass
+    output = []
+    for i in range(len(string)):
+        output.extend(leading_substrings(string[i:]))
+    return output
 
 expected_result = [
     "a", "ab", "abc", "abcd", "abcde",
