@@ -76,3 +76,19 @@ def is_prime(n):
     return True
 
 # LS: import math and using sqrt(n) as the upper limit for the range
+
+def is_prime(n):
+    # deals with 1 (but also 0 and anything negative)
+    if n < 2:
+        return False
+
+    # deals with any even numbers, except 2
+    if n % 2 == 0 and n != 2:
+        return False
+
+    # checks odd divisors from 3 to sqrt(n)
+    for divisor in range(3, int(n ** 0.5) + 1, 2):
+        if n % divisor == 0:
+            return False
+
+    return True
