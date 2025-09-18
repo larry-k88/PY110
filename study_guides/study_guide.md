@@ -302,6 +302,8 @@
 ## dict methods : keys, values, items, get, setdefault, update, pop, popitem, clear
 
 + `keys`
+    + Must be hashable objects (otherwise TypeError)
+    + Avoid using floats as keys (issues with floating-point precision)
     + Isolates the keys which can then be transitioned into a list/tuple
     + The returned object is dynamic - it changes if the keys are changed:
 
@@ -344,6 +346,7 @@
 
 + `get`
     + Fetches a value based on the key
+    + The argument can be a variable (same as when referencing an element)
     + If it doesn't exist, it returns None (or whatever is set as `default`)
 
             fruits = {'apple': 4, 'banana': 2}
@@ -351,6 +354,19 @@
             --> None
 
             fruits.get('pear', "Fruit doesn't exist")
+
+            key1 = 'apple'
+            key2 = 'pear'
+
+            fruits[key1]
+            --> 4
+            fruits[key2]
+            --> KeyError: 'pear'
+
+            fruits.get(key1)
+            --> 4
+            fruits.get(key2, "Fruit doesn't exist")
+            --> Fruit doesn't exist
 
 + `setdefault`
     + Similar to `get` in that it returns the value if the key exists
@@ -540,6 +556,7 @@
 ## frozenset methods: union, intersection, difference, issubset, issuperset, isdisjoint
 
 + A frozenset is an immutable set so any non-mutating methods or operators that are available for sets will work with frozensets.
++ It can only contain hashable objects (unlike tuples which can contain unhashable objects like lists) - this means they will **always** be hashable
 
 + Mutating methods that **cannot** be used are:
     + `add`, `remove`, `discard`, `pop` and `clear`
@@ -637,100 +654,363 @@
 ## The built-in functions sum and all.
 
 + `sum`
-    + Second
-        + Third
+    + Works with iterables that are entirely numeric - returns the sum of the values in the collection
+    + With dictionaries, it will sum the keys (ignoring the values)
+
+            num_dict = {1: 'a', 2: 'aa'}
+            sum(num_dict)
+            --> 3
+
+            num_range = range(1, 3) # 1, 2
+            sum(num_range)
+            --> 3
 
 + `all`
-    + Second
-        + Third
+    + Returns `True` if all elements are truthy, `False` otherwise
+    + If none of the are falsy, it will also return`True` i.e. any empty collection
+
+            all([2, True])
+            --> True
+
+            all([0, True])
+            --> False
+
+            all([])
+            --> True # No element is falsy
+
+    + Can be used to check if elements have a certain condition, e.g. in comprehensions
+
+            numbers = [2, 5, 8, 10, 13]
+            all([number % 2 == 0 for number in numbers])
+            --> False
+
+            numbers = [5, 13]
+            all([number % 2 == 0 for number in numbers])
+            --> False
+
+            numbers = [2, 8, 10]
+            all([number % 2 == 0 for number in numbers])
+            --> True
 
 
 ## Conditional statements (if, elif, else)
 
 + `if`
-    + Second
-        + Third
+    + Determines whether the condition is True
+    + If it is, the indented block executes
+    + If it isn't, the code resumes at the next non-indented line
 
 + `elif`
-    + Second
-        + Third
+    + Only executes if the `if` statement is False
 
 + `else`
-    + Second
-        + Third
+    + Executes if **all** the above conditions are False
+
++ Multiple `if` statements can be used to check condition independently - e.g. if more than one could be True and you want the indented code to run for each
++ An `if` followed by an `elif` means only one indented block would run - i.e. the conditions are mutually exclusive
+    + `if/elif/else` gets a single choice from multiple options
+    + multiple `if`s only get one option
 
 ## Iteration using for loops, break, continue
 
 + `for` loops
-    + Second
+    + Work with all built-in collections (including strings)
+    + Iterates over the items in the collection and does something with each
+    + NB with sets, the order can be changed
+    + NB with dictionaries, it iterates over the keys by default (use `dict.values()` to iterate over the values, or `dict.items()` for the pairs, with [tuple unpacking](#tuple-methods-count-index-unpacking) if necessary)
         + Third
 
 + `break`
-    + Second
-        + Third
+    + Exits the nearest enclosing loop immediately
+    + Useful if you don't want the code to continue after a certain condition is met
+    + Used to emulate do/while loops - use `while` to keep the loop going and then use `break` to exit the loop when a condition is met:
+
+            while True:
+                # main loop
+
+                answer = input('Play again? y/n')
+                if answer in ('n', 'N'):
+                    break
 
 + `continue`
-    + Second
-        + Third
+    + Starts a new loop iteration by skipping the rest of the block (only of the nearest enclosing loop)
+    + They can also be written with negated `if` conditions
+
+            data = ('Ben', 'Bill', 'Ted')
+
+            for name in data:
+                if name[0] == 'T':
+                    continue
+                print(name)
+
+
+            for name in data:
+                if not name[0] == 'T':
+                    print(name)
+
+        + Both print `Ben` and `Bill` - both are fine
 
 
 ## Sorting lists using the sorted function and list.sort method
 
++ Sorting, like `min` and `max` rely on the element types being comparable (along with operators like `<` and `>`). Therefore using any of these methods/operations on mixed collections (e.g. strings and integers) will result in a `TypeError`
+
 + `sorted`
-    + Second
-        + Third
+    + Non-destructive - returns a new list (non-mutating)
+    + It can therefore be used with immutable objects like strings (produces a list)
+
+            sorted('Ted')
+            --> ['T', 'd', 'e']
+
+        + Order depends on the "code point" in Unicode Standard: use `ord()` to get the value
+
+                ord('T') # 84
+                ord('e') # 101
+                ord('d') # 100
 
 + `list.sort()`
-    + Second
-        + Third
+    + Modifies the list in place (mutating) and returns `None`
+    + Doesn't work on any other data type, only lists
 
+            vowels = ['u', 'i', 'a', 'e', 'o']
+            sorted_vowels = sorted(vowels) # need to capture the value
+            print(vowels)         # ['u', 'i', 'a', 'e', 'o']
+            print(sorted_vowels)  # ['a', 'e', 'i', 'o', 'u']
+            
+            vowels = ['u', 'i', 'a', 'e', 'o']
+            vowels.sort()
+            print(vowels)  # ['a', 'e', 'i', 'o', 'u']
 
 ## Custom sorting using the key parameter and reverse sorting using the reverse parameter
 
 + Custom Sorting
-    + Second
-        + Third
+    + **First-class objects** (including functions) meet the following conditions:
+        + Can be assigned to a variable or an element of a data structure
+        + Can be passed as an argument to a function
+        + Can be returned as the return value of a function
+    + **Higher-order functions** take other functions as arguments or return functions
+        + `list.sort()` and `sorted` are examples, and accept a function as an argument
+
+    + The function object that is passed as an argument is done so via the `key` keyword - the function calls that function object on each object in the list - it is the return value of each of those calls that is used for comparison during the sorting process.
+
+            data = ['Ben', 'Bill', 'Ted']
+            sorted_data = sorted(data, key=len)
+            --> ['Ben', 'Ted', 'Bill']
+
+    + A custom function can be defined for use as the sorting key and that function can return a tuple, e.g.
+
+            def person_key(person):
+                name, age = person
+                return (age, name)
+        
+        + This takes the argument (a tuple), unpacks it and turns it around
+
+                person_key(('Ben', 23))
+                --> (23, 'Ben')
+
+        + To sort a list of tuples by age, this function can be passed as the key
+
+                data = [('Ben', 23), ('Bill', 25), ('Ted', 21)]
+                # sorted(data) would sort alphabetically by name only
+
+                sorted(data, key=person_key)
+                --> [('Ted', 21), ('Ben', 23), ('Bill', 25)]
+                # sorts by age first, then alphabetically 
 
 + Reverse Sorting
-    + Second
-        + Third
+    + Both options above accept the `reverse` keyword argument - when set to True, the list will descend
+
+            sorted('Ted', reverse=True)
+            --> ['e', 'd', 'T']
 
 
 ## Comprehensions
 
-+ Comprehensions
-    + Second
-        + Third
++ List Comprehensions
+    + Shorthand for creating collections:
 
+            [output_exp for item in existing_list if condition]
+
+    + Transformations:
+        + Creating a new list by changing (or not) each element of the old list
+
+                nums = [1, 2, 3]
+                [num**2 for num in nums]
+                --> [1, 4, 9]
+
+            + If there is no actual change in the value, it is called an 'identity transformation' (makes a shallow copy)
+
+    + Filtering:
+        + Uses the `if` condition to filter
+
+                nums = [1, 2, 3]
+                [num for num in nums if num % 2 == 1]
+                --> [1, 3] # this is an identity transformation with a filter
+
+    + Combination:
+
+                nums = [1, 2, 3]
+                [num**2 for num in nums if num % 2 == 1]
+                --> [1, 9]
+    
++ Set Comprehensions
+    + Similar to lists but the output is an unordered set with no duplicates
+
++ Dictionary Comprehensions
+    + Similar to lists but the output is a key_exp: value_exp pair
+
+            data = ['Ben', 'Bill', 'Ted']
+            {name: name.lower() for name in data}
+            --> {'Ben': 'ben', 'Bill': 'bill', 'Ted': 'ted'}
+
++ Tuple Comprehensions do not exist!
+
++ The collection that is iterated over can be any iterable type, including ranges, frozensets, files
+
++ Don't use comprehensions unless you're using the return value (i.e. if printing, use a loop)
 
 ## Nested data structures and nested iteration
 
 + Nested Structures
-    + Second
-        + Third
+    + These are collections within collections and can be accessed by chaining indexes:
+
+            data = [['Bill', 'Ben'], ['Bill', 'Ted']]
+            data[1][1]
+            --> Ted
+        
+    + Updating elements looks like chained indexes, but it actually on index followed by a reassignment
+
+            data = [['Bill', 'Ben'], ['Bill', 'Ted']]
+            data[1][1] = 'Coo'
+            
+        + `data[1]` is the index part - gives `['Bill', 'Ted']`, so we have...
+        + `['Bill', 'Ted'][1] = 'Coo'` which is reassigning second element (`'Ted'`) to `'Coo'`
+        + This is destructive/mutating
+
+    + Appending elements is the same - first part in the index, second is the appending part:
+
+            data = [['Bill', 'Ben'], ['Bill', 'Ted']]
+            data[1].append('Rufus')
+            --> [['Bill', 'Ben'], ['Bill', 'Ted', 'Rufus']]
+
+        + `data[1]` indexes and gives `['Bill', 'Ted']`, so we have...
+        + `['Bill', 'Ted'].append('Rufus')` which mutates the list, added 'Rufus'
+        + Note that it's possible to append another list, resulting in a 3-deep nested structure (e.g. `data[1].append([1989, 1991])`)
+
+    + **Lists** can contain dictionaries, tuples, sets and frozensets
+
+    + **Tuples** can contain lists, tuples, dictionaries, sets and frozensets
+
+    + **Dictionaries** must have hashable keys, but values can be anything
+
+    + **Sets** and **frozensets** can only contain collections that are hashable - cannot contain lists, dictionaries or other sets.
+
+    + Using variables to reference inner collections:
+
+            names = ['Bill', 'Ben']
+            ages = [23, 25]
+            data = [names, ages]
+            --> [['Bill', 'Ben'], [23, 25]]
+
+        + The list `data` contains *references* to lists `name` and `age`
+
+                names = ['Bill', 'Ben']
+                ages = [23, 25]
+                data = [names, ages]
+
+                names.append('Ted')
+                data
+                --> [['Bill', 'Ben', 'Ted'], [23, 25]]
+
+        + Both `names` and `data[0]` reference the same object:
+
+                data
+                --> [['Bill', 'Ben', 'Ted'], [23, 25]]
+
+                data[0].remove('Ted') # names.remove('Ted') has same effect
+                
+                --> [['Bill', 'Ben'], [23, 25]]
 
 + Nested Iteration
-    + Second
-        + Third
+    + Start with the outer loop and assign the variable to the first element
+    + The start the inner loop and process it completely
+    + Then move to the second element of the outer loop and complete the inner loop again
 
+    + These also appear in comprehensions as selection criteria: multiple selection criteria are similar to nested `if` statements
+
+            colours = ['Red', 'Blue']
+            modes = ['Car', 'Bus']
+
+            [(colour, mode) for colour in colours for mode in modes]
 
 ## Shallow and deep copy
 
 + Shallow Copy
-    + Second
-        + Third
+    + Creates a new copy of the object, but not of nested mutable objects (only references are copied)
+
+            data = [['Bill', 'Ben'], ['Bill', 'Ted']]
+            data_copy = data.copy()
+
+            data_copy[0] = 'flowerpot men' # reflected in the copy only
+            data_copy[1][1] = 'Rufus' # reflected in both
+
+            data
+            --> [['Bill', 'Ben'], ['Bill', 'Rufus']]
+            data_copy
+            --> ['flowerpot men', ['Bill', 'Rufus']]
+
+    + Lists:
+        + use `list` function - `list(lst)`
+        + use slicing - `lst[:]`
+        + use `copy()` - `lst.copy()` (works for lists, sets, frozensets and dictionaries)
+        + `import copy` - `copy.copy(lst)` (works for all iterables and returns an object of the same type it was passed)
+
+    + Dictionaries:
+        + use `dict` function - `dict(dictionary)`
+        + use `copy()` - `dictionary.copy()`
+        + `import copy` - `copy.copy(dictionary)` 
 
 + Deep Copy
-    + Second
-        + Third
+    + Creates new copy of the object and recursively copies all nested mutable objects (it still just creates references to immutable ones)
+    + Modifying nested elements in the deep copy has no effect on the original
+    + Requires a lot more processing than shallow copies
+    + `import copy` - `copy.deepcopy(iterable)`
 
 
 ## Discuss a function's use and purpose (a "user-level" description) instead of its implementation
 
 + Function Use
-    + Second
-        + Third
+    + This is how to use the function and can include what arguments it accepts and what it returns.
+    + It does not contain details of the function body (e.g. how it gets from the arguments to the return value, this would be an 'implementation-level' description)
+
+            def append_to(str1, str2):
+                for char in str2:
+                    str1 += char
+                
+                return str1
+
+        + *The function accepts two strings as arguments and it returns a new string which is the result of appending the second string to the first*
 
 + Function Purpose
-    + Second
-        + Third
+    + This is what the function is for:
+        + *The function concatenates two strings*
+
+
++ For reference, an implementation-level description would be:
+    + *The function takes two arguments, `str1` and `str2`. Inside the function, a `for` loop iterates through each character (`char`) of the second string argument, `str2`. In each iteration, the current `char` is appended to the first string, `str1`, using the `+=` operator. After the loop finishes, a new string referenced by `str1` is returned*
+
+## Misc
+
++ Hashing
+    + Hashable objects have a stable and *mostly* unique identifier - their 'hash value'
+    + The `hash` function generates the value which remains constant for the duration of the objects life
+    + 2 keys can have the same hash values (a *hash collision*) but Python resolves these invisibly
+    + Immutable objects are hashable but only if all elements within are hashable
+
+            data = ('phones', 4, 'u')
+            # hashable tuple as the elements are all hashable (still immutable)
+
+            data = ('phones', 4, ['u', 'U'])
+            # unhashable tuple as one element is an unhashable list (still immutable)
+
+    + Any mutable object is unhashable
