@@ -399,9 +399,13 @@
 
                 data |= new_data
 
-        + The `|` operator **merges** dictionaries, creating a new one:
+        + The `|` operator (or `**` operator) **merges** dictionaries, creating a new one:
 
                 merged_data = data | new_data
+                merged_data = {**data, **new_data}
+                # Both produce the same result
+
+            + `**` can also be used for packing/collecting (e.g. `**kwargs`)
 
 + `pop`
     + Removes a key/value pair and returns the value - useful when you want to use the value after deleting the key
@@ -450,6 +454,8 @@
 
         names.add('Ben')
         --> {'Bill', 'Jerry', 'Ben'} # no change, except the order 
+    
+    + Set items must be hashable (i.e. usually immutable)
 
 + `update`
     + Similar to with dictionaries, it combines the sets (removing any duplicates)
@@ -580,6 +586,32 @@
 
         + Unpacking can be done with other iterables such as lists. But as lists are mutable, the number of elements can change - this makes it hard as the number of variables must equal the number of elements in order to avoid errors.
 
+    + The `*` operator (unary asterisk) can unpack the contents of heterogeneous operators:
+
+            numbers = [1, 2]
+            tup_1 = (3, 4)
+            sequence = numbers + list(tup_1) # [1, 2, 3, 4]
+     
+            # Using *
+     
+            sequence = [*numbers, *tup_1]
+            # [1, 2, 3, 4]           
+
+    + Or to pass iterables as separate arguments:
+
+            def test(num1, num2):
+                # do something
+    
+            numbers = [1, 2]
+            test(numbers[0], numbers[1]) # clunky
+    
+            # Using *
+            test(*numbers)
+    
+    + Nested unpacking:
+    
+            numbers = [1, [2, 3, 4], 5]
+            a, (b, c, d), e = numbers
 
 ## range and enumerate - Understanding of how to create and use range objects and enumerate for indexing during iteration.
 
