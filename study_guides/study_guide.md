@@ -787,7 +787,7 @@
 
 + Sorting, like `min` and `max` rely on the element types being comparable (along with operators like `<` and `>`). Therefore using any of these methods/operations on mixed collections (e.g. strings and integers) will result in a `TypeError`
 
-+ `sorted`
++ `sorted()`
     + Non-destructive - returns a new list (non-mutating)
     + It can therefore be used with immutable objects like strings (produces a list)
 
@@ -1007,6 +1007,9 @@
     + Modifying nested elements in the deep copy has no effect on the original
     + Requires a lot more processing than shallow copies
     + `import copy` - `copy.deepcopy(iterable)`
+    
++ Rarely a need to copy immutable objects - sharing them is safe as they can't be changed and therefore multiple references to the same object can't cause any unwanted side effects.
++ Deep copies of immutable objects don't duplicate the immutable objects - they are reused
 
 
 ## Discuss a function's use and purpose (a "user-level" description) instead of its implementation
