@@ -13,11 +13,11 @@
 '''
 Problem:
 
-  - {Rewrite in own words}
+  - Return the next featured number larger than the argument
 
      
   - Explicit requirements:
-      - Rules
+      - Featured numbers: odd, divisible by 7, no repeated digits
   - Implicit requirements:
       - 
   - Questions
@@ -39,13 +39,14 @@ error = ("There is no possible number that "
 print(next_featured(9876543201) == error)       # True
 
 Data Structure:
-  - Input: 
-  - Output:
+  - Input: integer
+  - Output: integer
     
   - Intermediate: 
 
 High-level strategies:
-  - 
+  - Check the next largest multiple of 7 for featured status, then try 
+  each next multiple 
 
 Algorithm:  
 
@@ -54,12 +55,29 @@ Algorithm:
   # Descriptive variable names
   # Run test cases through algo
   
-  - 
+  - Add result of num % 7 to the number and set as starting point
+  - Iterate over range(starting point:9876543201 + 1, 7) and check for 
+  requirements
 
 '''
+MAX_FEATURED = 9876543201
+ERROR = ("There is no possible number that "
+         "fulfils those requirements.")
 
 def next_featured(number):
-    pass
+    if number >= MAX_FEATURED:
+        return ERROR
+
+    start = number + (7 - number % 7)
+    if start % 2 == 0:
+        start += 7
+
+    for num in range(start, MAX_FEATURED + 1, 14):
+        str_num = str(num)
+        if len(set(str_num)) == len(str_num):
+            return num
+
+    return ERROR
 
 print(next_featured(12))
 print(next_featured(20))
@@ -70,7 +88,4 @@ print(next_featured(999999))
 print(next_featured(999999987))
 print(next_featured(9876543186))
 print(next_featured(9876543200))
-
-error = ("There is no possible number that "
-         "fulfils those requirements.")
 print(next_featured(9876543201))
